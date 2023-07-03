@@ -12,8 +12,7 @@ set(PLUGIN_LIBS_DIR ${PLUGIN_DIR}/libs)
 ##### PLUGIN HEADERS #####
 list(APPEND PLUGIN_INCLUDES
 			${PLUGIN_DIR}/src
-			${PLUGIN_LIBS_DIR}/include
-			${PLUGIN_DIR}/deps/stb
+			${PLUGIN_DIR}/include
 )
 
 
