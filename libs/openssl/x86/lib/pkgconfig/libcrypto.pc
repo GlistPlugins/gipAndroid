@@ -1,4 +1,4 @@
-prefix=/Users/irrl/Downloads/android-openssl-cmake/prefix/x86
+prefix=/Users/leenjewel/workspaces/openssl_for_ios_and_android/tools/../output/android/openssl-android-x86
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
@@ -6,7 +6,7 @@ enginesdir=${libdir}/engines-1.1
 
 Name: OpenSSL-libcrypto
 Description: OpenSSL cryptography library
-Version: 1.1.1v-dev
+Version: 1.1.0c
 Libs: -L${libdir} -lcrypto
-Libs.private: -ldl -pthread 
+Libs.private: -L/Users/leenjewel/workspaces/openssl_for_ios_and_android/tools/x86-android-toolchain/sysroot/usr/lib -lz -ldl 
 Cflags: -I${includedir}
