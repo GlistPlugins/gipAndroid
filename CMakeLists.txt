@@ -21,6 +21,9 @@ list(APPEND PLUGIN_INCLUDES
 ##### PLUGIN SOURCES #####
 list(APPEND PLUGIN_SRCS
 		${PLUGIN_DIR}/src/gAndroidDialog.cpp
+		${PLUGIN_DIR}/src/gipAndroid.cpp
+		${PLUGIN_DIR}/src/gipAndroid.h
+		${PLUGIN_DIR}/libs/sqlite3.c
 )
 
 

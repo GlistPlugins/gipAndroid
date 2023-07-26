@@ -5,8 +5,8 @@
  *      Author: Metehan Gezer
  */
 
-#ifndef GLISTAPP_GDIALOG_H
-#define GLISTAPP_GDIALOG_H
+#ifndef GANDROIDDIALOG_H
+#define GANDROIDDIALOG_H
 
 #include <string>
 #include <jni.h>
@@ -62,4 +62,4 @@ void gShowDialog(int dialogId, const std::string& message, const std::string& ti
 				 DialogCancelCallback dismissCallback = nullptr);
 
 
-#endif //GLISTAPP_GDIALOG_H
+#endif //GANDROIDDIALOG_H
