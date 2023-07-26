@@ -17,10 +17,15 @@ list(APPEND PLUGIN_INCLUDES
 		${PLUGIN_DIR}/libs/openssl/${ANDROID_ABI}/include
 		${PLUGIN_DIR}/libs/curl/${ANDROID_ABI}/include
 )
+list(APPEND SRC_FILES
+		)
 
 ##### PLUGIN SOURCES #####
 list(APPEND PLUGIN_SRCS
+		${PLUGIN_DIR}/libs/sqlite3.c
 		${PLUGIN_DIR}/src/gAndroidDialog.cpp
+		${PLUGIN_DIR}/src/gAndroidWindow.cpp
+		${PLUGIN_DIR}/src/gAndroidUtil.cpp
 )
 
 
@@ -34,31 +39,31 @@ find_library( # Sets the name of the path variable.
 
 add_library(fmod SHARED IMPORTED)
 set_target_properties(fmod PROPERTIES IMPORTED_LOCATION
-		${ANDROID_DIR}/libs/fmod/${ANDROID_ABI}/libfmod.so)
+		${PLUGIN_DIR}/libs/fmod/${ANDROID_ABI}/libfmod.so)
 
 add_library(fmodL SHARED IMPORTED)
 set_target_properties(fmodL PROPERTIES IMPORTED_LOCATION
-		${ANDROID_DIR}/libs/fmod/${ANDROID_ABI}/libfmodL.so)
+		${PLUGIN_DIR}/libs/fmod/${ANDROID_ABI}/libfmodL.so)
 
 add_library(libpng STATIC IMPORTED)
 set_target_properties(libpng PROPERTIES IMPORTED_LOCATION
-		${ANDROID_DIR}/libs/libpng/${ANDROID_ABI}/libpng.a)
+		${PLUGIN_DIR}/libs/libpng/${ANDROID_ABI}/libpng.a)
 
 add_library(freetype STATIC IMPORTED)
 set_target_properties(freetype PROPERTIES IMPORTED_LOCATION
-		${ANDROID_DIR}/libs/freetype/${ANDROID_ABI}/libfreetype.a)
+		${PLUGIN_DIR}/libs/freetype/${ANDROID_ABI}/libfreetype.a)
 
 add_library(libcrypto STATIC IMPORTED)
 set_target_properties(libcrypto PROPERTIES IMPORTED_LOCATION
-		${ANDROID_DIR}/libs/openssl/${ANDROID_ABI}/lib/libcrypto.a)
+		${PLUGIN_DIR}/libs/openssl/${ANDROID_ABI}/lib/libcrypto.a)
 
 add_library(libssl STATIC IMPORTED)
 set_target_properties(libssl PROPERTIES IMPORTED_LOCATION
-		${ANDROID_DIR}/libs/openssl/${ANDROID_ABI}/lib/libssl.a)
+		${PLUGIN_DIR}/libs/openssl/${ANDROID_ABI}/lib/libssl.a)
 
 add_library(libcurl STATIC IMPORTED)
 set_target_properties(libcurl PROPERTIES IMPORTED_LOCATION
-		${ANDROID_DIR}/libs/curl/${ANDROID_ABI}/lib/libcurl.a)
+		${PLUGIN_DIR}/libs/curl/${ANDROID_ABI}/lib/libcurl.a)
 
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF)
