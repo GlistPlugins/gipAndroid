@@ -11,10 +11,16 @@ set(PLUGIN_LIBS_DIR ${PLUGIN_DIR}/libs)
 
 ##### PLUGIN HEADERS #####
 list(APPEND PLUGIN_INCLUDES
+		${PLUGIN_DIR}/src
 		${PLUGIN_DIR}/include
 		${PLUGIN_DIR}/include/freetype2
 		${PLUGIN_DIR}/libs/openssl/${ANDROID_ABI}/include
 		${PLUGIN_DIR}/libs/curl/${ANDROID_ABI}/include
+)
+
+##### PLUGIN SOURCES #####
+list(APPEND PLUGIN_SRCS
+		${PLUGIN_DIR}/src/gAndroidDialog.cpp
 )
 
 
