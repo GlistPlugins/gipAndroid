@@ -24,6 +24,7 @@ list(APPEND SRC_FILES
 list(APPEND PLUGIN_SRCS
 		${PLUGIN_DIR}/libs/sqlite3.c
 		${PLUGIN_DIR}/src/gAndroidDialog.cpp
+		${PLUGIN_DIR}/src/gAndroidToast.cpp
 		${PLUGIN_DIR}/src/gAndroidWindow.cpp
 		${PLUGIN_DIR}/src/gAndroidUtil.cpp
 )

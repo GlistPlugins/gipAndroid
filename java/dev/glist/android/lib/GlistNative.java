@@ -8,6 +8,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
@@ -113,6 +114,7 @@ public class GlistNative {
             builder.create().show();
         });
     }
+
     public static void showAlertDialogWithType(int dialogId, String message, String title, String type) {
         if (Objects.equals(type, "ok")) {
             showAlertDialog(dialogId, message, title, null, null, android.R.string.ok);
@@ -123,6 +125,12 @@ public class GlistNative {
         } else if (Objects.equals(type, "yesnocancel")) {
             showAlertDialog(dialogId, message, title, android.R.string.cancel, android.R.string.no, android.R.string.yes);
         }
+    }
+
+    public static void showToast(String text, int duration) {
+        activity.runOnUiThread(() -> {
+            Toast.makeText(activity, text, duration).show();
+        });
     }
 
     public static void setFullscreen(boolean fullscreen) {
