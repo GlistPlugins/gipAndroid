@@ -13,6 +13,7 @@
 #include <thread>
 
 AAssetManager* gAndroidUtil::assets;
+std::string gAndroidUtil::datadirectory;
 JavaVM* javavm;
 jobject classloader;
 
@@ -463,6 +464,10 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_setAssetManager(JNIEnv* env, jclass clazz, jobject assets) {
 	AAssetManager* man = AAssetManager_fromJava(env, assets);
 	gAndroidUtil::assets = man;
+}
+
+JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_setDataDirectory(JNIEnv* env, jclass clazz, jstring dir) {
+	gAndroidUtil::convertJStringToString(env, dir, gAndroidUtil::datadirectory);
 }
 
 

@@ -1,9 +1,15 @@
 package dev.glist.android.lib; // Do not change! GlistEngine links to this package.
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
+import android.os.storage.StorageManager;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.WindowInsets;
@@ -14,7 +20,11 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
+
+import javax.xml.parsers.FactoryConfigurationError;
 
 import dev.glist.android.BaseGlistAppActivity;
 import dev.glist.android.GlistAppActivity;
@@ -44,6 +54,25 @@ public class GlistNative {
             actionBar.hide();
         }
         setAssetManager(activity.getAssets());
+        String dataDir = activity.getDataDir().toString() + "/files";
+        setDataDirectory(dataDir);
+        PackageInfo pInfo = null;
+        try {
+            pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        String version = pInfo.versionName;
+        SharedPreferences preferences = activity.getSharedPreferences(pInfo.packageName, Context.MODE_PRIVATE);
+        String assetsVersion = preferences.getString("glist.copy_assets", null);
+        if (!Objects.equals(version, assetsVersion) || isDebug) {
+            // todo delete old assets
+            Log.i("GlistNative", "Copying assets...");
+            GlistNativeUtil.copyAssetFolder(activity.getAssets(), "", dataDir);
+            preferences.edit().putString("glist.copy_assets", version).commit();
+            Log.i("GlistNative", "Copying assets done!");
+        }
+
         activity.setContentView(R.layout.main);
         SurfaceView view = activity.findViewById(R.id.surfaceview);
         view.getHolder().addCallback(activity);
@@ -73,6 +102,7 @@ public class GlistNative {
 
     public static native void setSurface(Surface surface);
     public static native void setAssetManager(AssetManager assets);
+    public static native void setDataDirectory(String path);
     public static native boolean onTouchEvent(int pointerCount, int[] fingerIds, int[] x, int[] y);
 
     public static void showAlertDialog(int dialogId, String message, String title, String cancelText, String negativeText, String positiveText) {

@@ -39,6 +39,7 @@ private:
 class gAndroidUtil {
 public:
 	static AAssetManager* assets;
+	static std::string datadirectory;
 
 	static AAsset* loadAsset(const std::string& path, int mode);
 	static void closeAsset(AAsset* asset);
