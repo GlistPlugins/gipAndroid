@@ -62,6 +62,10 @@ public:
 	 */
 	static void updateAssets();
 
+	static std::string getPackageName();
+	static std::string getVersionName();
+	static int getVersionCode();
+
 	static jmethodID getJavaMethodID(jclass classID, std::string methodName, std::string methodSignature);
 	static jmethodID getJavaStaticMethodID(jclass classID, std::string methodName, std::string methodSignature);
 	static std::string getJavaClassName(jclass classID);

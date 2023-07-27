@@ -31,6 +31,7 @@ public class GlistNative {
     private static BaseGlistAppActivity activity;
     private static GlistOrientationListener orientationListener;
     private static String dataDir;
+    private static PackageInfo packageInfo;
 
     @SuppressLint("ApplySharedPref")
     public static SurfaceView init(BaseGlistAppActivity activity, String libraryName) {
@@ -52,14 +53,13 @@ public class GlistNative {
         setAssetManager(activity.getAssets());
         dataDir = activity.getDataDir().toString() + "/files";
         setDataDirectory(dataDir);
-        PackageInfo pInfo = null;
         try {
-            pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+            packageInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
             throw new RuntimeException(e);
         }
-        String version = pInfo.versionName;
-        SharedPreferences preferences = activity.getSharedPreferences(pInfo.packageName, Context.MODE_PRIVATE);
+        String version = packageInfo.versionName;
+        SharedPreferences preferences = activity.getSharedPreferences(packageInfo.packageName, Context.MODE_PRIVATE);
         String assetsVersion = preferences.getString("glist.copy_assets", null);
         if (!Objects.equals(version, assetsVersion) || isDebug) {
             // todo delete old assets
@@ -80,6 +80,18 @@ public class GlistNative {
         Log.i("GlistNative", "Updating assets...");
         GlistNativeUtil.copyAssetFolder(activity.getAssets(), "", dataDir);
         Log.i("GlistNative", "Updating assets done!");
+    }
+
+    public static String getPackageName() {
+        return packageInfo.packageName;
+    }
+
+    public static String getVersionName() {
+        return packageInfo.versionName;
+    }
+
+    public static int getVersionCode() {
+        return packageInfo.versionCode;
     }
 
     public static void enableOrientationListener() {
