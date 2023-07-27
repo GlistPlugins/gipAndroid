@@ -454,6 +454,34 @@ void gAndroidUtil::updateAssets() {
 	getJNIEnv()->CallStaticVoidMethod(glistandroid,method);
 }
 
+std::string gAndroidUtil::getPackageName() {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	JNIEnv* env = getJNIEnv();
+	jmethodID method = env->GetStaticMethodID(glistandroid,"getPackageName","()Ljava/lang/String;");
+	std::string str;
+	gAndroidUtil::convertJStringToString(env, (jstring)env->CallStaticObjectMethod(glistandroid, method), str);
+	return str;
+}
+
+std::string gAndroidUtil::getVersionName() {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	JNIEnv* env = getJNIEnv();
+	jmethodID method = env->GetStaticMethodID(glistandroid,"getVersionName","()Ljava/lang/String;");
+	std::string str;
+	gAndroidUtil::convertJStringToString(env, (jstring)env->CallStaticObjectMethod(glistandroid, method), str);
+	return str;
+}
+
+int gAndroidUtil::getVersionCode() {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	JNIEnv* env = getJNIEnv();
+	jmethodID method = env->GetStaticMethodID(glistandroid,"getVersionCode","()I");
+	return (jint)env->CallStaticObjectMethod(glistandroid, method);
+}
+
 extern "C" {
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
