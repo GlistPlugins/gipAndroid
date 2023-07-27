@@ -8,7 +8,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
-import android.os.storage.StorageManager;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -20,14 +19,10 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
 
-import javax.xml.parsers.FactoryConfigurationError;
 
 import dev.glist.android.BaseGlistAppActivity;
-import dev.glist.android.GlistAppActivity;
 import dev.glist.glistapp.R;
 
 @SuppressLint("StaticFieldLeak")
