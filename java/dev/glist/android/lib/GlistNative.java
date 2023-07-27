@@ -30,8 +30,9 @@ public class GlistNative {
 
     private static BaseGlistAppActivity activity;
     private static GlistOrientationListener orientationListener;
+    private static String dataDir;
 
-
+    @SuppressLint("ApplySharedPref")
     public static SurfaceView init(BaseGlistAppActivity activity, String libraryName) {
         activity.getBaseContext().getApplicationInfo();
         System.loadLibrary("fmod");
@@ -49,7 +50,7 @@ public class GlistNative {
             actionBar.hide();
         }
         setAssetManager(activity.getAssets());
-        String dataDir = activity.getDataDir().toString() + "/files";
+        dataDir = activity.getDataDir().toString() + "/files";
         setDataDirectory(dataDir);
         PackageInfo pInfo = null;
         try {
@@ -62,16 +63,23 @@ public class GlistNative {
         String assetsVersion = preferences.getString("glist.copy_assets", null);
         if (!Objects.equals(version, assetsVersion) || isDebug) {
             // todo delete old assets
-            Log.i("GlistNative", "Copying assets...");
-            GlistNativeUtil.copyAssetFolder(activity.getAssets(), "", dataDir);
-            preferences.edit().putString("glist.copy_assets", version).commit();
-            Log.i("GlistNative", "Copying assets done!");
+            updateAssets();
+            preferences.edit().putString("glist.copy_assets", version).commit(); // Intentionally used commit() here! Do not change.
         }
 
         activity.setContentView(R.layout.main);
         SurfaceView view = activity.findViewById(R.id.surfaceview);
         view.getHolder().addCallback(activity);
         return view;
+    }
+
+    /**
+     * Copies all assets from APK to data directory.
+     */
+    public static void updateAssets() {
+        Log.i("GlistNative", "Updating assets...");
+        GlistNativeUtil.copyAssetFolder(activity.getAssets(), "", dataDir);
+        Log.i("GlistNative", "Updating assets done!");
     }
 
     public static void enableOrientationListener() {

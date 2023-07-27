@@ -54,6 +54,14 @@ public:
 
 	static void setDeviceOrientation(DeviceOrientation orientation);
 
+	/**
+	 * @brief Forcefully copies all Android assets from the APK to the data directory.
+	 *
+	 * Android assets are normally copied during the first launch if the app version number has changed or in debug mode.
+	 * This function allows developers to copy all assets at runtime on demand, bypassing these checks.
+	 */
+	static void updateAssets();
+
 	static jmethodID getJavaMethodID(jclass classID, std::string methodName, std::string methodSignature);
 	static jmethodID getJavaStaticMethodID(jclass classID, std::string methodName, std::string methodSignature);
 	static std::string getJavaClassName(jclass classID);

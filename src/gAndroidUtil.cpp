@@ -447,6 +447,13 @@ void gAndroidUtil::setDeviceOrientation(DeviceOrientation orientation) {
 	getJNIEnv()->CallStaticVoidMethod(glistandroid,method, orientation);
 }
 
+void gAndroidUtil::updateAssets() {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	jmethodID method = getJNIEnv()->GetStaticMethodID(glistandroid,"updateAssets","()V");
+	getJNIEnv()->CallStaticVoidMethod(glistandroid,method);
+}
+
 extern "C" {
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
