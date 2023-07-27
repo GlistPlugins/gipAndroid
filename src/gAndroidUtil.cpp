@@ -13,6 +13,7 @@
 #include <thread>
 
 AAssetManager* gAndroidUtil::assets;
+std::string gAndroidUtil::datadirectory;
 JavaVM* javavm;
 jobject classloader;
 
@@ -446,6 +447,13 @@ void gAndroidUtil::setDeviceOrientation(DeviceOrientation orientation) {
 	getJNIEnv()->CallStaticVoidMethod(glistandroid,method, orientation);
 }
 
+void gAndroidUtil::updateAssets() {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	jmethodID method = getJNIEnv()->GetStaticMethodID(glistandroid,"updateAssets","()V");
+	getJNIEnv()->CallStaticVoidMethod(glistandroid,method);
+}
+
 extern "C" {
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
@@ -463,6 +471,10 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_setAssetManager(JNIEnv* env, jclass clazz, jobject assets) {
 	AAssetManager* man = AAssetManager_fromJava(env, assets);
 	gAndroidUtil::assets = man;
+}
+
+JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_setDataDirectory(JNIEnv* env, jclass clazz, jstring dir) {
+	gAndroidUtil::convertJStringToString(env, dir, gAndroidUtil::datadirectory);
 }
 
 

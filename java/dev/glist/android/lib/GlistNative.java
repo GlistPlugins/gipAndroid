@@ -1,9 +1,14 @@
 package dev.glist.android.lib; // Do not change! GlistEngine links to this package.
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.WindowInsets;
@@ -16,8 +21,8 @@ import androidx.appcompat.app.AlertDialog;
 
 import java.util.Objects;
 
+
 import dev.glist.android.BaseGlistAppActivity;
-import dev.glist.android.GlistAppActivity;
 import dev.glist.glistapp.R;
 
 @SuppressLint("StaticFieldLeak")
@@ -25,8 +30,9 @@ public class GlistNative {
 
     private static BaseGlistAppActivity activity;
     private static GlistOrientationListener orientationListener;
+    private static String dataDir;
 
-
+    @SuppressLint("ApplySharedPref")
     public static SurfaceView init(BaseGlistAppActivity activity, String libraryName) {
         activity.getBaseContext().getApplicationInfo();
         System.loadLibrary("fmod");
@@ -44,10 +50,36 @@ public class GlistNative {
             actionBar.hide();
         }
         setAssetManager(activity.getAssets());
+        dataDir = activity.getDataDir().toString() + "/files";
+        setDataDirectory(dataDir);
+        PackageInfo pInfo = null;
+        try {
+            pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        String version = pInfo.versionName;
+        SharedPreferences preferences = activity.getSharedPreferences(pInfo.packageName, Context.MODE_PRIVATE);
+        String assetsVersion = preferences.getString("glist.copy_assets", null);
+        if (!Objects.equals(version, assetsVersion) || isDebug) {
+            // todo delete old assets
+            updateAssets();
+            preferences.edit().putString("glist.copy_assets", version).commit(); // Intentionally used commit() here! Do not change.
+        }
+
         activity.setContentView(R.layout.main);
         SurfaceView view = activity.findViewById(R.id.surfaceview);
         view.getHolder().addCallback(activity);
         return view;
+    }
+
+    /**
+     * Copies all assets from APK to data directory.
+     */
+    public static void updateAssets() {
+        Log.i("GlistNative", "Updating assets...");
+        GlistNativeUtil.copyAssetFolder(activity.getAssets(), "", dataDir);
+        Log.i("GlistNative", "Updating assets done!");
     }
 
     public static void enableOrientationListener() {
@@ -73,6 +105,7 @@ public class GlistNative {
 
     public static native void setSurface(Surface surface);
     public static native void setAssetManager(AssetManager assets);
+    public static native void setDataDirectory(String path);
     public static native boolean onTouchEvent(int pointerCount, int[] fingerIds, int[] x, int[] y);
 
     public static void showAlertDialog(int dialogId, String message, String title, String cancelText, String negativeText, String positiveText) {

@@ -39,6 +39,7 @@ private:
 class gAndroidUtil {
 public:
 	static AAssetManager* assets;
+	static std::string datadirectory;
 
 	static AAsset* loadAsset(const std::string& path, int mode);
 	static void closeAsset(AAsset* asset);
@@ -52,6 +53,14 @@ public:
 	static void attachMainThread(jobject classloader);
 
 	static void setDeviceOrientation(DeviceOrientation orientation);
+
+	/**
+	 * @brief Forcefully copies all Android assets from the APK to the data directory.
+	 *
+	 * Android assets are normally copied during the first launch if the app version number has changed or in debug mode.
+	 * This function allows developers to copy all assets at runtime on demand, bypassing these checks.
+	 */
+	static void updateAssets();
 
 	static jmethodID getJavaMethodID(jclass classID, std::string methodName, std::string methodSignature);
 	static jmethodID getJavaStaticMethodID(jclass classID, std::string methodName, std::string methodSignature);
