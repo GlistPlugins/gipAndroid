@@ -19,9 +19,9 @@ public:
 
 	virtual void deviceOrientationChanged(DeviceOrientation deviceorientation);
 
-	virtual void touchMoved(const TouchInput& input);
-	virtual void touchPressed(const TouchInput& input);
-	virtual void touchReleased(const TouchInput& input);
+	virtual void touchMoved(int x, int y, int fingerId);
+	virtual void touchPressed(int x, int y, int fingerId);
+	virtual void touchReleased(int x, int y, int fingerId);
 
 	virtual void pause();
 	virtual void resume();
