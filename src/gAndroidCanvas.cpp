@@ -19,15 +19,15 @@ void gAndroidCanvas::deviceOrientationChanged(DeviceOrientation deviceorientatio
 
 }
 
-void gAndroidCanvas::touchMoved(const TouchInput& input) {
+void gAndroidCanvas::touchMoved(int x, int y, int fingerId) {
 
 }
 
-void gAndroidCanvas::touchPressed(const TouchInput &input) {
+void gAndroidCanvas::touchPressed(int x, int y, int fingerId) {
 
 }
 
-void gAndroidCanvas::touchReleased(const TouchInput &input) {
+void gAndroidCanvas::touchReleased(int x, int y, int fingerId) {
 
 }
 
