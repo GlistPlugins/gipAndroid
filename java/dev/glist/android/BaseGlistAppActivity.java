@@ -115,19 +115,24 @@ public abstract class BaseGlistAppActivity extends AppCompatActivity implements 
         if(!surfaceSet) {
             return true;
         }
+
         int[] coords = new int[2];
         view.getLocationInWindow(coords);
         int pointers = event.getPointerCount();
-        int[] fingerIds = new int[pointers];
+        int[] pointerIds = new int[pointers];
         for (int i = 0; i < pointers; i++) {
-            fingerIds[i] = event.getPointerId(i);
+            pointerIds[i] = event.getPointerId(i);
         }
         int[] x = new int[pointers];
         int[] y = new int[pointers];
+        int[] types = new int[pointers];
+        int actionIndex = event.getActionIndex();
+        int actionMasked = event.getActionMasked();
         for (int i = 0; i < pointers; i++) {
+            types[i] = event.getToolType(i);
             x[i] = (int) (event.getAxisValue(MotionEvent.AXIS_X, i) - coords[0]);
             y[i] = (int) (event.getAxisValue(MotionEvent.AXIS_Y, i) - coords[1]);
         }
-        return GlistNative.onTouchEvent(pointers, fingerIds, x, y);
+        return GlistNative.onTouchEvent(pointers, pointerIds, x, y, types, actionIndex, actionMasked);
     }
 }

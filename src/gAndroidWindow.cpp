@@ -164,16 +164,6 @@ void gAndroidWindow::setWindowResizable(bool isResizable) {
 void gAndroidWindow::setWindowSizeLimits(int minWidth, int minHeight, int maxWidth, int maxHeight) {
 }
 
-bool gAndroidWindow::onTouchCallback(int pointerCount, int* fingerIds, int* x, int* y) {
-	TouchInput inputs[pointerCount];
-	for (int i = 0; i < pointerCount; ++i) {
-		inputs[i] = {fingerIds[i], i, x[i], y[i]};
-	}
-	gTouchEvent event{pointerCount, inputs};
-	callEvent(event);
-	return false;
-}
-
 void gAndroidWindow::resize() {
     if(!eglQuerySurface(display, surface, EGL_WIDTH, &width) ||
         !eglQuerySurface(display, surface, EGL_HEIGHT, &height)) {
@@ -205,17 +195,22 @@ JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_setSurface(JNIEnv 
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_dev_glist_android_lib_GlistNative_onTouchEvent(JNIEnv *env, jclass clazz, jint pointerCount, jintArray fingerIds, jintArray x, jintArray y) {
+JNIEXPORT jboolean JNICALL Java_dev_glist_android_lib_GlistNative_onTouchEvent(JNIEnv *env, jclass clazz, jint pointerCount, jintArray pointerIds, jintArray x, jintArray y, jintArray types, jint actionIndex, jint actionMasked) {
 	if(!window) {
 		return false;
 	}
 
-	int* _fingerids = env->GetIntArrayElements(fingerIds, new jboolean(false));
+	int* _pointerIds = env->GetIntArrayElements(pointerIds, new jboolean(false));
 	int* _x = env->GetIntArrayElements(x, new jboolean(false));
 	int* _y = env->GetIntArrayElements(y, new jboolean(false));
-
-	return window->onTouchCallback(pointerCount, _fingerids, _x, _y); // true if consumed
-	return false;
+	int* _types = env->GetIntArrayElements(y, new jboolean(false));
+	TouchInput inputs[pointerCount];
+	for(int i = 0; i < pointerCount; ++i) {
+		inputs[i] = {(InputType) _types[i], _pointerIds[i], i, _x[i], _y[i]};
+	}
+	gTouchEvent event{pointerCount, inputs, actionIndex, (ActionType) actionMasked};
+	window->callEvent(event);
+	return true;
 }
 
 JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_onOrientationChanged(JNIEnv *env, jclass clazz, jint orientation) {

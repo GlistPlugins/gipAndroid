@@ -479,7 +479,7 @@ int gAndroidUtil::getVersionCode() {
 
 	JNIEnv* env = getJNIEnv();
 	jmethodID method = env->GetStaticMethodID(glistandroid,"getVersionCode","()I");
-	return (jint)env->CallStaticObjectMethod(glistandroid, method);
+	return env->CallStaticIntMethod(glistandroid, method);
 }
 
 extern "C" {
