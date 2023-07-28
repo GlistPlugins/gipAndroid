@@ -27,6 +27,8 @@ list(APPEND PLUGIN_SRCS
 		${PLUGIN_DIR}/src/gAndroidToast.cpp
 		${PLUGIN_DIR}/src/gAndroidWindow.cpp
 		${PLUGIN_DIR}/src/gAndroidUtil.cpp
+		${PLUGIN_DIR}/src/gAndroidCanvas.cpp
+		${PLUGIN_DIR}/src/gAndroidApp.cpp
 )
 
 

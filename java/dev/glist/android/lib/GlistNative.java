@@ -118,7 +118,7 @@ public class GlistNative {
     public static native void setSurface(Surface surface);
     public static native void setAssetManager(AssetManager assets);
     public static native void setDataDirectory(String path);
-    public static native boolean onTouchEvent(int pointerCount, int[] fingerIds, int[] x, int[] y);
+    public static native boolean onTouchEvent(int pointerCount, int[] pointerIds, int[] x, int[] y, int[] types, int actionIndex, int actionMasked);
 
     public static void showAlertDialog(int dialogId, String message, String title, String cancelText, String negativeText, String positiveText) {
         activity.runOnUiThread(() -> {
