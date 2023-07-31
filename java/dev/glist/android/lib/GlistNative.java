@@ -2,12 +2,15 @@ package dev.glist.android.lib; // Do not change! GlistEngine links to this packa
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -19,6 +22,14 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.Locale;
 import java.util.Objects;
 
 
@@ -199,8 +210,158 @@ public class GlistNative {
         onOrientationChanged(orientation);
     }
 
-    public static native void onOrientationChanged(int orientation);
+    public static String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        if (model.startsWith(manufacturer)) {
+            return model;
+        } else {
+            return manufacturer + " " + model;
+        }
+    }
 
+    public static int getAndroidApiLevel() {
+        return android.os.Build.VERSION.SDK_INT;
+    }
+
+    public static String getInstallerPackage() {
+        String installerPackage;
+        try {
+            installerPackage = activity.getPackageManager().getInstallerPackageName(getPackageName());
+        } catch(Exception e) {
+            Log.e("GlistNative", "Failed to get installer package name:"  + e);
+            installerPackage = null;
+        }
+        if (installerPackage == null || installerPackage.equals("")) installerPackage = "terminal";
+        return installerPackage;
+    }
+
+    public static void openURL(String url) {
+        activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+    }
+
+    public static void openEmail(String mailAddress, String subject, String message) {
+        if (mailAddress == null || mailAddress.equals("")) {
+            mailAddress = "info@example.com";
+        }
+        if (subject == null || subject.equals("")) {
+            subject = "Feedback";
+        }
+        try {
+            Intent selectorIntent = new Intent(Intent.ACTION_SENDTO);
+            selectorIntent.setData(Uri.parse("mailto:"));
+
+            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{mailAddress});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+            if (message != null) {
+                emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+            }
+            emailIntent.setSelector(selectorIntent);
+            activity.startActivity(Intent.createChooser(emailIntent, "Select an Email app"));
+        } catch (android.content.ActivityNotFoundException e) {
+            Toast.makeText(activity, "There are no email clients installed on your device.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static String getSharedPreferences(String key, String defValue) {
+        SharedPreferences sp = activity.getPreferences(Context.MODE_PRIVATE);
+        return sp.getString(key, defValue);
+    }
+
+    @SuppressLint("ApplySharedPref")
+    public static void setSharedPreferences(String key, String value) {
+        SharedPreferences.Editor spe = activity.getPreferences(Context.MODE_PRIVATE).edit();
+        spe.putString(key, value);
+        spe.commit();
+    }
+
+    public static String getCountrySim() {
+        TelephonyManager tm = (TelephonyManager)activity.getSystemService(Context.TELEPHONY_SERVICE);
+        String gsc = tm.getSimCountryIso();
+        if (gsc == null || gsc.equals("")) gsc = "Z00";
+        return gsc;
+    }
+
+    public static String getCountryLocale() {
+        return Locale.getDefault().getCountry();
+    }
+
+    public static String getDisplayLanguage() {
+        return Locale.getDefault().getDisplayLanguage();
+    }
+
+    public static String getLanguage() {
+        return Locale.getDefault().getLanguage();
+    }
+
+    public static String getISO3Language() {
+        return Locale.getDefault().getISO3Language();
+    }
+
+    public static String loadURL(String url) {
+        String response = "";
+        try {
+            URL pageURL = new URL(url);
+            try(BufferedReader in = new BufferedReader(new InputStreamReader(pageURL.openStream()))) {
+                int str;
+                StringBuilder sb = new StringBuilder(100);
+                while ((str = in.read()) != -1) {
+                    sb.append((char)str);
+                }
+                response = sb.toString();
+            }
+        } catch (Exception e) {
+            Log.e("GlistNative", "Failed to load from url " + url, e);
+        }
+        return response;
+    }
+
+    public static boolean saveURLString(String url, String fileName) {
+        try {
+            File file = new File(fileName);
+            URL pageURL = new URL(url);
+            StringBuilder builder = new StringBuilder(100);
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(pageURL.openStream()))) {
+                int c;
+                while ((c = in.read()) != -1) {
+                    builder.append((char)c);
+                }
+            }
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(builder.toString().getBytes());
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e("GlistNative", "Failed to save from url " + url + " as string to file: " + fileName, e);
+            return false;
+        }
+    }
+
+
+    /** @noinspection IOStreamConstructor*/
+    public static boolean saveURLRaw(String url, String fileName) {
+        Log.i("GlistNative", "Downloading from " + url);
+        try {
+            URL pageURL = new URL(url);
+            try (InputStream input = pageURL.openStream()) {
+                Log.i("GlistNative", "Saving to " + fileName);
+                try (OutputStream output = new FileOutputStream(fileName)) {
+                    byte[] buffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
+                        output.write(buffer, 0, bytesRead);
+                    }
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e("GlistNative", "Failed to save from url " + url + " as raw to file: " + fileName, e);
+            return false;
+        }
+    }
+
+    public static native void onOrientationChanged(int orientation);
     public static native void onDialogButtonCallback(int dialogId, int which);
     public static native void onDialogDismissCallback(int dialogId);
     public static native void onDialogClosedCallback(int dialogId);

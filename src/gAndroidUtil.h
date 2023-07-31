@@ -53,6 +53,26 @@ public:
 	static void attachMainThread(jobject classloader);
 
 	static void setDeviceOrientation(DeviceOrientation orientation);
+	static void setFullscreen(bool fullscreen);
+
+	static std::string getDeviceName();
+	static int getAndroidApiLevel();
+	static std::string getInstallerPackage();
+
+	static void openURL(const std::string& url);
+	static void openEmail(const std::string& mailAddress, const std::string& subject, const std::string& message);
+
+	static std::string loadURL(const std::string& url);
+	static bool saveURLString(const std::string& url, const std::string fileName);
+	static bool saveURLRaw(const std::string url, const std::string fileName);
+
+	static std::string getSharedPreferences(const std::string& key, const std::string& defaultValue);
+	static void setSharedPreferences(const std::string& key, const std::string& value);
+	static std::string getCountrySim();
+	static std::string getCountryLocale();
+	static std::string getDisplayLanguage();
+	static std::string getLanguage();
+	static std::string getISO3Language();
 
 	/**
 	 * @brief Forcefully copies all Android assets from the APK to the data directory.
@@ -84,6 +104,10 @@ public:
 	static jobject callJavaStaticObjectMethod(jclass classID, std::string methodName, std::string methodSignature, va_list args);
 	static jobject callJavaStaticObjectMethod(jclass classID, std::string methodName, std::string methodSignature, ...);
 	static jobject callJavaStaticObjectMethod(std::string className, std::string methodName, std::string methodSignature, ...);
+
+	static bool callJavaStaticBoolMethod(jclass classID, std::string methodName, std::string methodSignature, va_list args);
+	static bool callJavaStaticBoolMethod(jclass classID, std::string methodName, std::string methodSignature, ...);
+	static bool callJavaStaticBoolMethod(std::string className, std::string methodName, std::string methodSignature, ...);
 
 	static jobject callJavaObjectMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, va_list args);
 	static jobject callJavaObjectMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, ...);

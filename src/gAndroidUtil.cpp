@@ -148,8 +148,7 @@ void gAndroidUtil::callJavaVoidMethod(jobject object, std::string className, std
 	getJNIEnv()->DeleteLocalRef(classID);
 }
 
-jobject gAndroidUtil::callJavaStaticObjectMethod(jclass classID, std::string methodName, std::string methodSignature, va_list args)
-{
+jobject gAndroidUtil::callJavaStaticObjectMethod(jclass classID, std::string methodName, std::string methodSignature, va_list args) {
 	jmethodID methodID = gAndroidUtil::getJavaStaticMethodID(classID, methodName, methodSignature);
 
 	if (!methodID)
@@ -169,8 +168,9 @@ jobject gAndroidUtil::callJavaStaticObjectMethod(jclass classID, std::string met
 
 jobject gAndroidUtil::callJavaStaticObjectMethod(std::string className, std::string methodName, std::string methodSignature, ...) {
 	jclass classID = gAndroidUtil::getJavaClassID(className);
-	if (!classID)
+	if (!classID) {
 		return nullptr;
+	}
 	va_list args;
 	va_start(args, methodSignature);
 	jobject result = gAndroidUtil::callJavaStaticObjectMethod(classID, methodName, methodSignature, args);
@@ -180,12 +180,46 @@ jobject gAndroidUtil::callJavaStaticObjectMethod(std::string className, std::str
 	return result;
 }
 
-jobject gAndroidUtil::callJavaObjectMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, va_list args) {
-	jmethodID methodID = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
-	if (!methodID)
-		return nullptr;
+bool gAndroidUtil::callJavaStaticBoolMethod(jclass classID, std::string methodName, std::string methodSignature, va_list args) {
+	jmethodID methodID = gAndroidUtil::getJavaStaticMethodID(classID, methodName, methodSignature);
 
-	return getJNIEnv()->CallObjectMethodV(object, methodID, args);
+	if (!methodID) {
+		return false;
+	}
+
+	return getJNIEnv()->CallStaticBooleanMethodV(classID, methodID, args);
+}
+
+bool gAndroidUtil::callJavaStaticBoolMethod(jclass classID, std::string methodName, std::string methodSignature, ...) {
+	va_list args;
+	va_start(args, methodSignature);
+	bool result = gAndroidUtil::callJavaStaticBoolMethod(classID, methodName, methodSignature, args);
+	va_end(args);
+
+	return result;
+}
+
+bool gAndroidUtil::callJavaStaticBoolMethod(std::string className, std::string methodName, std::string methodSignature, ...) {
+	jclass classID = gAndroidUtil::getJavaClassID(className);
+	if (!classID) {
+		return false;
+	}
+	va_list args;
+	va_start(args, methodSignature);
+	bool result = gAndroidUtil::callJavaStaticBoolMethod(classID, methodName, methodSignature, args);
+	va_end(args);
+	getJNIEnv()->DeleteLocalRef(classID);
+
+	return result;
+}
+
+jobject gAndroidUtil::callJavaObjectMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, va_list args) {
+	jmethodID methodid = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
+	if (!methodid) {
+		return nullptr;
+	}
+
+	return getJNIEnv()->CallObjectMethodV(object, methodid, args);
 }
 
 jobject gAndroidUtil::callJavaObjectMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, ...) {
@@ -198,26 +232,27 @@ jobject gAndroidUtil::callJavaObjectMethod(jobject object, jclass classID, std::
 }
 
 jobject gAndroidUtil::callJavaObjectMethod(jobject object, std::string className, std::string methodName, std::string methodSignature, ...) {
-	jclass classID = gAndroidUtil::getJavaClassID(className);
-	if (!classID)
+	jclass classid = gAndroidUtil::getJavaClassID(className);
+	if (!classid) {
 		return nullptr;
+	}
 
 	va_list args;
 	va_start(args, methodSignature);
-	jobject result = gAndroidUtil::callJavaObjectMethod(object, classID, methodName, methodSignature, args);
+	jobject result = gAndroidUtil::callJavaObjectMethod(object, classid, methodName, methodSignature, args);
 	va_end(args);
-	getJNIEnv()->DeleteLocalRef(classID);
+	getJNIEnv()->DeleteLocalRef(classid);
 
 	return result;
 }
 
 
 void gAndroidUtil::callJavaStaticVoidMethod(jclass classID, std::string methodName, std::string methodSignature, va_list args) {
-	jmethodID methodID = gAndroidUtil::getJavaStaticMethodID(classID, methodName, methodSignature);
-	if (!methodID)
+	jmethodID methodid = gAndroidUtil::getJavaStaticMethodID(classID, methodName, methodSignature);
+	if (!methodid)
 		return;
 
-	getJNIEnv()->CallStaticVoidMethodV(classID, methodID, args);
+	getJNIEnv()->CallStaticVoidMethodV(classID, methodid, args);
 }
 
 void gAndroidUtil::callJavaStaticVoidMethod(jclass classID, std::string methodName, std::string methodSignature, ...) {
@@ -240,13 +275,13 @@ void gAndroidUtil::callJavaStaticVoidMethod(std::string className, std::string m
 }
 
 float gAndroidUtil::callJavaFloatMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, va_list args) {
-	jmethodID methodID = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
-	if (!methodID) {
+	jmethodID methodid = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
+	if (!methodid) {
 		gLoge("gAndroidUtil") << "Couldn't find " << methodName << " for float call";
 		return 0;
 	}
 
-	return getJNIEnv()->CallFloatMethodV(object, methodID, args);
+	return getJNIEnv()->CallFloatMethodV(object, methodid, args);
 }
 
 float gAndroidUtil::callJavaFloatMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, ...) {
@@ -275,14 +310,14 @@ float gAndroidUtil::callJavaFloatMethod(jobject object, std::string className, s
 }
 
 int gAndroidUtil::callJavaIntMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, va_list args){
-	jmethodID methodID = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
+	jmethodID methodid = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
 
-	if (!methodID) {
+	if (!methodid) {
 		gLoge() << "Couldn't find " << methodName << " for int call";
 		return 0;
 	}
 
-	return getJNIEnv()->CallIntMethodV(object, methodID, args);
+	return getJNIEnv()->CallIntMethodV(object, methodid, args);
 }
 
 int gAndroidUtil::callJavaIntMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, ...) {
@@ -312,13 +347,13 @@ int gAndroidUtil::callJavaIntMethod(jobject object, std::string className, std::
 }
 
 int64_t gAndroidUtil::callJavaLongMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, va_list args){
-	jmethodID methodID = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
-	if (!methodID) {
+	jmethodID methodid = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
+	if (!methodid) {
 		gLoge() << "Couldn't find " << methodName << " for int64_t call";
 		return 0;
 	}
 
-	return getJNIEnv()->CallLongMethodV(object, methodID, args);
+	return getJNIEnv()->CallLongMethodV(object, methodid, args);
 }
 
 int64_t gAndroidUtil::callJavaLongMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, ...) {
@@ -348,14 +383,14 @@ int64_t gAndroidUtil::callJavaLongMethod(jobject object, std::string className, 
 }
 
 bool gAndroidUtil::callJavaBoolMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, va_list args) {
-	jmethodID methodID = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
+	jmethodID methodid = gAndroidUtil::getJavaMethodID(classID, methodName, methodSignature);
 
-	if (!methodID) {
+	if (!methodid) {
 		gLoge() << "Couldn't find " << methodName << " for bool call";
 		return false;
 	}
 
-	return getJNIEnv()->CallBooleanMethodV(object, methodID, args);
+	return getJNIEnv()->CallBooleanMethodV(object, methodid, args);
 }
 
 bool gAndroidUtil::callJavaBoolMethod(jobject object, jclass classID, std::string methodName, std::string methodSignature, ...){
@@ -429,12 +464,11 @@ jclass gAndroidUtil::getJavaGlistAndroid() {
 }
 
 jobject gAndroidUtil::getJavaAndroidActivity() {
-	jclass nativeclass = getJavaGlistAndroid();
-	return getJavaStaticObjectField(nativeclass, "activity", "Ldev/glist/android/GlistAppActivity;");
+	return getJavaStaticObjectField(getJavaGlistAndroid(), "activity", "Ldev/glist/android/GlistAppActivity;");
 }
 
 void gAndroidUtil::attachMainThread(jobject classLoader) {
-	JNIEnv* env = gAndroidUtil::getJNIEnv(); // Attach the thread to JVM
+	gAndroidUtil::getJNIEnv(); // Attach the thread to JVM
 	classloader = classLoader;
 	jclass looper = gAndroidUtil::getJavaClassID("android/os/Looper");
 	gAndroidUtil::callJavaStaticVoidMethod(looper, "prepare", "()V");
@@ -447,6 +481,110 @@ void gAndroidUtil::setDeviceOrientation(DeviceOrientation orientation) {
 	getJNIEnv()->CallStaticVoidMethod(glistandroid,method, orientation);
 }
 
+void gAndroidUtil::setFullscreen(bool fullscreen) {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	jmethodID method = getJNIEnv()->GetStaticMethodID(glistandroid,"setFullscreen","(Z)V");
+	getJNIEnv()->CallStaticVoidMethod(glistandroid,method, fullscreen);
+}
+
+std::string gAndroidUtil::getDeviceName() {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getDeviceName", "()Ljava/lang/String;");
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+int gAndroidUtil::getAndroidApiLevel() {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	JNIEnv* env = getJNIEnv();
+	jmethodID methodid = env->GetStaticMethodID(glistandroid, "getAndroidApiLevel", "()I");
+	return env->CallStaticIntMethod(glistandroid, methodid);
+}
+
+std::string gAndroidUtil::getInstallerPackage() {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getInstallerPackage", "()Ljava/lang/String;");
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+void gAndroidUtil::openURL(const std::string& url) {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	jmethodID methodid = getJNIEnv()->GetStaticMethodID(glistandroid, "openURL", "(Ljava/lang/String;)V");
+	getJNIEnv()->CallStaticVoidMethod(glistandroid, methodid, JavaString(url).native());
+}
+
+void gAndroidUtil::openEmail(const std::string& mailAddress, const std::string& subject, const std::string& message) {
+	jclass glistandroid = getJavaGlistAndroid();
+
+	jmethodID method = getJNIEnv()->GetStaticMethodID(glistandroid, "openEmail", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+	getJNIEnv()->CallStaticVoidMethod(glistandroid, method, JavaString(mailAddress).native(), JavaString(subject).native(), JavaString(message).native());
+}
+
+std::string gAndroidUtil::loadURL(const std::string& url) {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "loadURL", "(Ljava/lang/String;)Ljava/lang/String;", JavaString(url).native());
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+bool gAndroidUtil::saveURLString(const std::string& url, const std::string fileName) {
+	return callJavaStaticBoolMethod(getJavaGlistAndroid(), "saveURLString", "(Ljava/lang/String;Ljava/lang/String;)Z", JavaString(url).native(), JavaString(fileName).native());
+}
+
+bool gAndroidUtil::saveURLRaw(const std::string url, const std::string fileName) {
+	return callJavaStaticBoolMethod(getJavaGlistAndroid(), "saveURLRaw", "(Ljava/lang/String;Ljava/lang/String;)Z", JavaString(url).native(), JavaString(fileName).native());
+}
+
+std::string gAndroidUtil::getSharedPreferences(const std::string& key, const std::string& defaultValue) {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getSharedPreferences", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;", JavaString(key).native(), JavaString(defaultValue).native());
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+void gAndroidUtil::setSharedPreferences(const std::string& key, const std::string& value) {
+	callJavaStaticVoidMethod(getJavaGlistAndroid(), "setSharedPreferences","(Ljava/lang/String;Ljava/lang/String;)V", JavaString(key).native(), JavaString(value).native());
+}
+
+std::string gAndroidUtil::getCountrySim() {
+	jstring jstr = (jstring)callJavaStaticObjectMethod(getJavaGlistAndroid(), "getCountrySim", "()Ljava/lang/String;");
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+std::string gAndroidUtil::getCountryLocale() {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getCountryLocale", "()Ljava/lang/String;");
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+std::string gAndroidUtil::getDisplayLanguage() {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getDisplayLanguage", "()Ljava/lang/String;");
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+std::string gAndroidUtil::getLanguage() {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getLanguage", "()Ljava/lang/String;");
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
+std::string gAndroidUtil::getISO3Language() {
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getISO3Language", "()Ljava/lang/String;");
+	std::string str;
+	convertJStringToString(getJNIEnv(), jstr, str);
+	return str;
+}
+
 void gAndroidUtil::updateAssets() {
 	jclass glistandroid = getJavaGlistAndroid();
 
@@ -455,22 +593,16 @@ void gAndroidUtil::updateAssets() {
 }
 
 std::string gAndroidUtil::getPackageName() {
-	jclass glistandroid = getJavaGlistAndroid();
-
-	JNIEnv* env = getJNIEnv();
-	jmethodID method = env->GetStaticMethodID(glistandroid,"getPackageName","()Ljava/lang/String;");
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getPackageName", "()Ljava/lang/String;");
 	std::string str;
-	gAndroidUtil::convertJStringToString(env, (jstring)env->CallStaticObjectMethod(glistandroid, method), str);
+	convertJStringToString(getJNIEnv(), jstr, str);
 	return str;
 }
 
 std::string gAndroidUtil::getVersionName() {
-	jclass glistandroid = getJavaGlistAndroid();
-
-	JNIEnv* env = getJNIEnv();
-	jmethodID method = env->GetStaticMethodID(glistandroid,"getVersionName","()Ljava/lang/String;");
+	jstring jstr = (jstring) callJavaStaticObjectMethod(getJavaGlistAndroid(), "getVersionName", "()Ljava/lang/String;");
 	std::string str;
-	gAndroidUtil::convertJStringToString(env, (jstring)env->CallStaticObjectMethod(glistandroid, method), str);
+	convertJStringToString(getJNIEnv(), jstr, str);
 	return str;
 }
 
