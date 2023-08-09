@@ -46,7 +46,6 @@ public class GlistNative {
 
     @SuppressLint("ApplySharedPref")
     public static SurfaceView init(BaseGlistAppActivity activity, String libraryName) {
-        activity.getBaseContext().getApplicationInfo();
         System.loadLibrary("fmod");
         boolean isDebug = ((activity.getBaseContext().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
         // this needs to be changed if project name inside CMakeLists.txt is changed.
@@ -127,6 +126,7 @@ public class GlistNative {
     public static native void onResume();
 
     public static native void setSurface(Surface surface);
+    public static native void onResize();
     public static native void setAssetManager(AssetManager assets);
     public static native void setDataDirectory(String path);
     public static native boolean onTouchEvent(int pointerCount, int[] pointerIds, int[] x, int[] y, int[] types, int actionIndex, int actionMasked);
@@ -207,7 +207,6 @@ public class GlistNative {
 
     public static void setDeviceOrientation(int orientation) {
         activity.setRequestedOrientation(orientation);
-        onOrientationChanged(orientation);
     }
 
     public static String getDeviceName() {
@@ -368,5 +367,9 @@ public class GlistNative {
 
     public static BaseGlistAppActivity getActivity() {
         return activity;
+    }
+
+    public static GlistOrientationListener getOrientationListener() {
+        return orientationListener;
     }
 }

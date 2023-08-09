@@ -616,7 +616,7 @@ int gAndroidUtil::getVersionCode() {
 
 extern "C" {
 
-jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 	JNIEnv* env;
 	javavm = vm;
 	gLogd("gAndroidUtil") << "JNI_OnLoad called";

@@ -165,6 +165,7 @@ void gAndroidWindow::setWindowSizeLimits(int minWidth, int minHeight, int maxWid
 }
 
 void gAndroidWindow::resize() {
+    update();
     if(!eglQuerySurface(display, surface, EGL_WIDTH, &width) ||
         !eglQuerySurface(display, surface, EGL_HEIGHT, &height)) {
         gLogi("gAndroidWindow") << "eglQuerySurface() returned error " << eglGetError();
@@ -177,21 +178,24 @@ void gAndroidWindow::resize() {
 
 extern "C" {
 JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_setSurface(JNIEnv *env, jclass clazz, jobject surface) {
-	if (surface != nullptr) {
+	if(surface != nullptr) {
 		gAndroidWindow::nativewindow = ANativeWindow_fromSurface(env, surface);
-        if(window) {
-            appmanager->submitToMainThread([]() {
-                if(!window) {
-                    return;
-                }
-                window->resize();
-            });
-        }
 	} else {
 		if(window) {
 			window->close();
 		}
 		ANativeWindow_release(gAndroidWindow::nativewindow);
+	}
+}
+
+JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_onResize(JNIEnv *env, jclass clazz) {
+	if(appmanager) {
+		appmanager->submitToMainThread([]() {
+			if(!window) {
+				return;
+			}
+			window->resize();
+		});
 	}
 }
 
