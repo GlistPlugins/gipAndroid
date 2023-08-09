@@ -2,6 +2,8 @@ package dev.glist.android;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -104,10 +106,17 @@ public abstract class BaseGlistAppActivity extends AppCompatActivity implements 
     public void surfaceChanged(@NonNull SurfaceHolder holder, int i, int i1, int i2) {
         surfaceSet = true;
         executeQueue.offerFirst(() -> GlistNative.setSurface(holder.getSurface()));
+        executeQueue.offerLast(GlistNative::onResize);
     }
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+    }
+
+    @Override
+    public void setRequestedOrientation(int requestedOrientation) {
+        super.setRequestedOrientation(requestedOrientation);
+        GlistNative.onOrientationChanged(requestedOrientation);
     }
 
     @Override
@@ -134,5 +143,13 @@ public abstract class BaseGlistAppActivity extends AppCompatActivity implements 
             y[i] = (int) (event.getAxisValue(MotionEvent.AXIS_Y, i) - coords[1]);
         }
         return GlistNative.onTouchEvent(pointers, pointerIds, x, y, types, actionIndex, actionMasked);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (GlistNative.getOrientationListener() != null) {
+            GlistNative.getOrientationListener().checkOrientation();
+        }
     }
 }
