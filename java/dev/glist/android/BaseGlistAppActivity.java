@@ -9,8 +9,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import org.fmod.FMOD;
-
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -33,7 +31,6 @@ public abstract class BaseGlistAppActivity extends AppCompatActivity implements 
         super.onCreate(savedInstanceState);
 
         view = GlistNative.init(this, LIBRARY_NAME);
-        FMOD.init(this);
 
         executeQueue.offerLast(GlistNative::onCreate);
         initExecutors();
