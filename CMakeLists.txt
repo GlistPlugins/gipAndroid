@@ -17,6 +17,7 @@ list(APPEND PLUGIN_INCLUDES
 		${PLUGIN_DIR}/libs/openssl/${ANDROID_ABI}/include
 		${PLUGIN_DIR}/libs/curl/${ANDROID_ABI}/include
 )
+
 list(APPEND SRC_FILES
 		)
 
@@ -88,3 +89,11 @@ list(APPEND PLUGIN_LINKLIBS
 		libcrypto
 		libcurl
 )
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
+	set(SHADERTOHEADER_EXEC_PATH "${PLUGIN_DIR}/tools/GlistShaderToHeader-linux-x86_64")
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+	set(SHADERTOHEADER_EXEC_PATH "${PLUGIN_DIR}/tools/GlistShaderToHeader-macos-universal")
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+	set(SHADERTOHEADER_EXEC_PATH "${PLUGIN_DIR}/tools/GlistShaderToHeader-win-x86_64.exe")
+endif()
