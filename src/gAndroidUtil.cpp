@@ -685,7 +685,7 @@ JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_onPause(JNIEnv* en
 	//gLogi("GlistNative") << "onPause";
 	if(appmanager) {
 		gAppPauseEvent event{};
-		appmanager->getEventHandler()(event);
+		appmanager->callEvent(event);
 	}
 }
 
@@ -693,7 +693,7 @@ JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_onResume(JNIEnv* e
 	//gLogi("GlistNative") << "onResume";
 	if(appmanager) {
 		gAppResumeEvent event{};
-		appmanager->getEventHandler()(event);
+		appmanager->callEvent(event);
 	}
 }
 
