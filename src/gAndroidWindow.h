@@ -66,7 +66,7 @@ public:
 	void setVsync(bool vsync) override;
 
 	void setCursor(int cursorNo) override;
-	void setCursorMode(int cursorMode) override;
+	void setCursorMode(gCursorMode cursorMode) override;
 
 	void setClipboardString(std::string text) override;
 	std::string getClipboardString() override;
