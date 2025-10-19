@@ -145,7 +145,7 @@ void gAndroidWindow::setVsync(bool vsync) {
 void gAndroidWindow::setCursor(int cursorNo) {
 }
 
-void gAndroidWindow::setCursorMode(int cursorMode) {
+void gAndroidWindow::setCursorMode(gCursorMode cursorMode) {
 }
 
 void gAndroidWindow::setClipboardString(std::string text) {
