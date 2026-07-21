@@ -16,6 +16,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
@@ -45,6 +46,7 @@ public class GlistNative {
     private static GlistOrientationListener orientationListener;
     private static String dataDir;
     private static PackageInfo packageInfo;
+    private static GlistInputView inputView;
 
     @SuppressLint("ApplySharedPref")
     public static SurfaceView init(BaseGlistAppActivity activity, String libraryName) {
@@ -83,7 +85,53 @@ public class GlistNative {
         activity.setContentView(R.layout.main);
         SurfaceView view = activity.findViewById(R.id.surfaceview);
         view.getHolder().addCallback(activity);
+        // A 1x1 invisible input trap laid over the surface. The user never touches
+        // it; showKeyboard() focuses it to raise the soft keyboard, and what is
+        // typed is forwarded to the engine. Routing input through a real EditText
+        // keeps the IME behaving as a plain keyboard.
+        inputView = new GlistInputView(activity);
+        android.view.ViewGroup parent = (android.view.ViewGroup) view.getParent();
+        if (parent != null) {
+            parent.addView(inputView, new android.view.ViewGroup.LayoutParams(1, 1));
+        }
         return view;
+    }
+
+    /**
+     * Raises the soft keyboard over the surface. Called from native when a text
+     * control gains edit focus (gBaseWindow::showKeyboard). Marshals to the UI
+     * thread, since InputMethodManager must be touched there.
+     */
+    public static void showKeyboard() {
+        if (activity == null || inputView == null) {
+            return;
+        }
+        activity.runOnUiThread(() -> {
+            inputView.setText("");
+            inputView.requestFocus();
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(inputView, InputMethodManager.SHOW_IMPLICIT);
+            }
+        });
+    }
+
+    /**
+     * Hides the soft keyboard. Called from native when the text control loses
+     * edit focus (gBaseWindow::hideKeyboard).
+     */
+    public static void hideKeyboard() {
+        if (activity == null || inputView == null) {
+            return;
+        }
+        activity.runOnUiThread(() -> {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(inputView.getWindowToken(), 0);
+            }
+            inputView.clearFocus();
+            inputView.setText("");
+        });
     }
 
     /**
@@ -133,6 +181,8 @@ public class GlistNative {
     public static native void setAssetManager(AssetManager assets);
     public static native void setDataDirectory(String path);
     public static native boolean onTouchEvent(int pointerCount, int[] pointerIds, int[] x, int[] y, int[] types, int actionIndex, int actionMasked);
+    public static native void onCharTyped(int codepoint);
+    public static native void onKey(int keycode, boolean pressed);
 
     public static void showAlertDialog(int dialogId, String message, String title, String cancelText, String negativeText, String positiveText) {
         activity.runOnUiThread(() -> {

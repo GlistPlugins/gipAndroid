@@ -71,6 +71,9 @@ public:
 	void setClipboardString(std::string text) override;
 	std::string getClipboardString() override;
 
+	void showKeyboard() override;
+	void hideKeyboard() override;
+
 	void setWindowSize(int width, int height) override;
 	void setWindowResizable(bool isResizable) override;
 	void setWindowSizeLimits(int minWidth, int minHeight, int maxWidth, int maxHeight) override;

@@ -176,6 +176,19 @@ void gAndroidWindow::resize() {
     setSize(width, height);
 }
 
+void gAndroidWindow::showKeyboard() {
+	// Raises the soft keyboard via the static GlistNative.showKeyboard(), which
+	// marshals to the UI thread and calls InputMethodManager. Called from a text
+	// control when it gains edit focus (gGUITextbox), on the loop thread.
+	jclass nativeclass = gAndroidUtil::getJavaGlistAndroid();
+	gAndroidUtil::callJavaStaticVoidMethod(nativeclass, "showKeyboard", "()V");
+}
+
+void gAndroidWindow::hideKeyboard() {
+	jclass nativeclass = gAndroidUtil::getJavaGlistAndroid();
+	gAndroidUtil::callJavaStaticVoidMethod(nativeclass, "hideKeyboard", "()V");
+}
+
 extern "C" {
 JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_setSurface(JNIEnv *env, jclass clazz, jobject surface) {
 	if(surface != nullptr) {
@@ -204,17 +217,53 @@ JNIEXPORT jboolean JNICALL Java_dev_glist_android_lib_GlistNative_onTouchEvent(J
 		return false;
 	}
 
-	int* _pointerIds = env->GetIntArrayElements(pointerIds, new jboolean(false));
-	int* _x = env->GetIntArrayElements(x, new jboolean(false));
-	int* _y = env->GetIntArrayElements(y, new jboolean(false));
-	int* _types = env->GetIntArrayElements(y, new jboolean(false));
+	// The isCopy out-parameter is optional; passing a heap-allocated jboolean here
+	// leaked one per touch event. The types array was also read from y by mistake,
+	// so every input carried its y coordinate as its InputType.
+	int* _pointerIds = env->GetIntArrayElements(pointerIds, nullptr);
+	int* _x = env->GetIntArrayElements(x, nullptr);
+	int* _y = env->GetIntArrayElements(y, nullptr);
+	int* _types = env->GetIntArrayElements(types, nullptr);
 	TouchInput inputs[pointerCount];
 	for(int i = 0; i < pointerCount; ++i) {
 		inputs[i] = {(InputType) _types[i], _pointerIds[i], i, _x[i], _y[i]};
 	}
+	// callEvent dispatches synchronously and the handlers copy what they keep, so
+	// the JNI arrays can be handed back as soon as it returns. JNI_ABORT because
+	// nothing was written into them.
+	env->ReleaseIntArrayElements(pointerIds, _pointerIds, JNI_ABORT);
+	env->ReleaseIntArrayElements(x, _x, JNI_ABORT);
+	env->ReleaseIntArrayElements(y, _y, JNI_ABORT);
+	env->ReleaseIntArrayElements(types, _types, JNI_ABORT);
 	gTouchEvent event{pointerCount, inputs, actionIndex, (ActionType) actionMasked};
 	window->callEvent(event);
 	return true;
+}
+
+JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_onCharTyped(JNIEnv *env, jclass clazz, jint codepoint) {
+	// A Unicode code point committed by the soft keyboard. Fed into the same
+	// gCharTypedEvent path the desktop uses; gAppManager queues the GUI delivery
+	// onto the loop thread on mobile, so this UI-thread call does not race drawing.
+	if(!window) {
+		return;
+	}
+	gCharTypedEvent event{(unsigned int) codepoint};
+	window->callEvent(event);
+}
+
+JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_onKey(JNIEnv *env, jclass clazz, jint keycode, jboolean pressed) {
+	// Edit keys the soft keyboard sends as key events rather than text - backspace,
+	// enter and the like - as engine key codes. Same queued delivery as above.
+	if(!window) {
+		return;
+	}
+	if(pressed) {
+		gKeyPressedEvent event{(int) keycode};
+		window->callEvent(event);
+	} else {
+		gKeyReleasedEvent event{(int) keycode};
+		window->callEvent(event);
+	}
 }
 
 JNIEXPORT void JNICALL Java_dev_glist_android_lib_GlistNative_onOrientationChanged(JNIEnv *env, jclass clazz, jint orientation) {
