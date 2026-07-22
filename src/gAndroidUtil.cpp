@@ -616,6 +616,11 @@ int gAndroidUtil::getVersionCode() {
 
 extern "C" {
 
+uint32_t glist_sync_add_and_fetch_4(uint32_t* ptr, uint32_t val) __asm__("__sync_add_and_fetch_4");
+uint32_t glist_sync_add_and_fetch_4(uint32_t* ptr, uint32_t val) {
+    return __atomic_add_fetch(ptr, val, __ATOMIC_SEQ_CST);
+}
+
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 	JNIEnv* env;
 	javavm = vm;

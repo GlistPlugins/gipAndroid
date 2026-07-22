@@ -25,6 +25,8 @@ public abstract class BaseGlistAppActivity extends AppCompatActivity implements 
     private final BlockingDeque<Runnable> executeQueue = new LinkedBlockingDeque<>(30);
     private boolean surfaceSet = false;
     private ScheduledFuture<?> task;
+    private ScheduledFuture<?> resizeTask;
+    private static final long RESIZE_DEBOUNCE_MS = 450;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +105,10 @@ public abstract class BaseGlistAppActivity extends AppCompatActivity implements 
     public void surfaceChanged(@NonNull SurfaceHolder holder, int i, int i1, int i2) {
         surfaceSet = true;
         executeQueue.offerFirst(() -> GlistNative.setSurface(holder.getSurface()));
-        executeQueue.offerLast(GlistNative::onResize);
+        if (resizeTask != null) {
+            resizeTask.cancel(false);
+        }
+        resizeTask = mainExecutor.schedule(() -> executeQueue.offerLast(GlistNative::onResize), RESIZE_DEBOUNCE_MS, TimeUnit.MILLISECONDS);
     }
 
     @Override

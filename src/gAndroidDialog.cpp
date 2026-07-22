@@ -9,6 +9,7 @@
 #include "gAndroidUtil.h"
 #include "gUtils.h"
 #include <vector>
+#include <algorithm>
 
 struct DialogData {
 	int dialogid;

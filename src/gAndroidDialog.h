@@ -8,7 +8,10 @@
 #ifndef GANDROIDDIALOG_H
 #define GANDROIDDIALOG_H
 
+#ifdef ANDROID
+
 #include <string>
+#include <functional>
 #include <jni.h>
 
 enum DialogButton {
@@ -61,5 +64,6 @@ void gShowDialog(int dialogId, const std::string& message, const std::string& ti
 				 DialogButtonCallback buttonCallback = nullptr,
 				 DialogCancelCallback dismissCallback = nullptr);
 
+#endif /* ANDROID */
 
 #endif //GANDROIDDIALOG_H
