@@ -64,11 +64,19 @@ add_library(libcurl STATIC IMPORTED)
 set_target_properties(libcurl PROPERTIES IMPORTED_LOCATION
 		${PLUGIN_DIR}/libs/curl/${ANDROID_ABI}/lib/libcurl.a)
 
+# assimp declares these with option(), and its cmake_minimum_required predates
+# CMP0077, under which option() would override the values set here. Making the
+# policy NEW for its tree keeps the settings below in effect.
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 set(ANDROID_NATIVE_API_LEVEL android-24)
 set(ANDROID_PLATFORM android-24)
 add_subdirectory(${PLUGIN_DIR}/deps/assimp ${CMAKE_BINARY_DIR}/assimp EXCLUDE_FROM_ALL)
+# assimp puts CMAKE_DEBUG_POSTFIX "d" in the cache, and every target created
+# after this point would pick it up, including the app's library, which Java
+# loads by its plain name. Shadow it for the rest of the configure.
+set(CMAKE_DEBUG_POSTFIX "")
 
 list(APPEND PLUGIN_LINKLIBS
 		assimp

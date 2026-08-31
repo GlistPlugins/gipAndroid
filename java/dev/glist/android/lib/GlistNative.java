@@ -62,12 +62,8 @@ public class GlistNative {
     @SuppressLint("ApplySharedPref")
     public static SurfaceView init(BaseGlistAppActivity activity, String libraryName) {
         boolean isDebug = ((activity.getBaseContext().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
-        // this needs to be changed if project name inside CMakeLists.txt is changed.
-        if (isDebug) {
-            System.loadLibrary(libraryName + "d");
-        } else {
-            System.loadLibrary(libraryName);
-        }
+        // The library is named after APP_NAME in the app's CMakeLists.txt.
+        System.loadLibrary(libraryName);
 
         GlistNative.activity = activity;
         ActionBar actionBar = activity.getSupportActionBar();
